@@ -9,16 +9,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-
 using WiimoteLib;
-
-using Point = WiimoteLib.Point;
+using WiimoteTest.Utils;
 using PointF = WiimoteLib.PointF;
 
 namespace WiimoteTest
@@ -221,7 +217,7 @@ namespace WiimoteTest
                     g.DrawEllipse(new Pen(Color.White), (int)(ws.IRState.IRSensors[i].RawPosition.X / 4), (int)(ws.IRState.IRSensors[i].RawPosition.Y / 4), 2, 2);
             }
 
-            var corners = Sort(new PointF[4] {
+            var corners = MathUtils.Sort(new PointF[4] {
                 ws.IRState.IRSensors[0].Position,
                 ws.IRState.IRSensors[1].Position,
                 ws.IRState.IRSensors[2].Position,
@@ -230,10 +226,6 @@ namespace WiimoteTest
 
             if (ws.IRState.IRSensors[0].Found && ws.IRState.IRSensors[1].Found && ws.IRState.IRSensors[2].Found && ws.IRState.IRSensors[3].Found)
             {
-                g.DrawLine(new Pen(Color.Green), (int)(corners[0].X / 4), (int)(corners[0].Y / 4), (int)(corners[1].X / 4), (int)(corners[1].Y / 4));
-                g.DrawLine(new Pen(Color.Green), (int)(corners[1].X / 4), (int)(corners[1].Y / 4), (int)(corners[2].X / 4), (int)(corners[2].Y / 4));
-                g.DrawLine(new Pen(Color.Green), (int)(corners[2].X / 4), (int)(corners[2].Y / 4), (int)(corners[3].X / 4), (int)(corners[3].Y / 4));
-                g.DrawLine(new Pen(Color.Green), (int)(corners[3].X / 4), (int)(corners[3].Y / 4), (int)(corners[0].X / 4), (int)(corners[0].Y / 4));
 
                 double x1 = 0.5 - corners[0].X;
                 double x2 = corners[1].X - corners[0].X;
@@ -243,35 +235,26 @@ namespace WiimoteTest
                 double y2 = corners[3].Y - corners[0].Y;
                 double percentY = y1 / y2;
 
-
                 percentX = percentX - 0.5;
                 Console.WriteLine(percentX);
 
-                percentX = 1280 + (2560 * (percentX/ 2.7));
+                var x = 1280;
+                var y = 1024;
 
-                SetCursorPos((int)(percentX), (int)(1440 * (1 - percentY)));
+                percentX = (x / 2) + (x * (percentX / 2.7));
+
+                SetCursorPos((int)(percentX), (int)(y * (1 - percentY)));
+            }
+
+            if (ws.IRState.IRSensors[0].Found && ws.IRState.IRSensors[1].Found && ws.IRState.IRSensors[2].Found && ws.IRState.IRSensors[3].Found)
+            {
+                g.DrawLine(new Pen(Color.Red), (int)(corners[0].X / 4), (int)(corners[0].Y / 4), (int)(corners[1].X / 4), (int)(corners[1].Y / 4));
+                g.DrawLine(new Pen(Color.Blue), (int)(corners[1].X / 4), (int)(corners[1].Y / 4), (int)(corners[2].X / 4), (int)(corners[2].Y / 4));
+                g.DrawLine(new Pen(Color.Yellow), (int)(corners[2].X / 4), (int)(corners[2].Y / 4), (int)(corners[3].X / 4), (int)(corners[3].Y / 4));
+                g.DrawLine(new Pen(Color.Orange), (int)(corners[3].X / 4), (int)(corners[3].Y / 4), (int)(corners[0].X / 4), (int)(corners[0].Y / 4));
             }
 
             pbIR.Image = b;
-
-            pbBattery.Value = (ws.Battery > 0xc8 ? 0xc8 : (int)ws.Battery);
-            lblBattery.Text = ws.Battery.ToString();
-        }
-
-        class Position
-        {
-            public double X;
-            public double Y;
-            public Position(double X, double Y)
-            {
-                this.X = X;
-                this.Y = Y;
-            }
-        }
-
-        private double GetDistance(Position p1, Position p2)
-        {
-            return Math.Sqrt(Math.Pow((p2.X - p1.X), 2) + Math.Pow((p2.Y - p1.Y), 2));
         }
 
         bool tempPressedLeft = false;
@@ -347,52 +330,6 @@ namespace WiimoteTest
                 tempPressedPlus = pressed;
             }
         }
-
-
-        static Position[] Sort(PointF[] rect)
-        {
-            Position topLeft = new Position(0, 0);
-            Position topRight = new Position(0, 0);
-            Position bottomLeft = new Position(0, 0);
-            Position bottomRight = new Position(0, 0);
-
-            var leftMost = new Point[2];
-            var rightMost = new Point[2];
-
-            // Insert 4 corners into array
-            List<Position> points = new List<Position>();
-            for (int i = 0; i <= 3; i++)
-            {
-                points.Add(new Position(rect[i].X, rect[i].Y));
-            }
-
-            points = points.OrderBy(w => w.X).ToList();
-
-            if (points[0].Y < points[1].Y)
-            {
-                topLeft = points[0];
-                bottomLeft = points[1];
-            }
-            else
-            {
-                topLeft = points[1];
-                bottomLeft = points[0];
-            }
-
-            if (points[2].Y < points[3].Y)
-            {
-                topRight = points[2];
-                bottomRight = points[3];
-            }
-            else
-            {
-                topRight = points[3];
-                bottomRight = points[2];
-            }
-
-            return new Position[4] { topLeft, topRight, bottomRight, bottomLeft };
-        }
-
         private void UpdateIR(IRSensor irSensor, Label lblNorm, Label lblRaw, CheckBox chkFound, Color color)
         {
             chkFound.Checked = irSensor.Found;
@@ -416,5 +353,6 @@ namespace WiimoteTest
         {
             set { mWiimote = value; }
         }
+        
     }
 }

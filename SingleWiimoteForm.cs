@@ -47,10 +47,12 @@ namespace WiimoteTest
 				wm.SetReportType(InputReport.IRExtensionAccel, true);
 			else
 				wm.SetReportType(InputReport.IRAccel, true);
+			wm.SetLEDs(true, false, false, false);
 		}
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
+			wm.SetLEDs(false, false, false, false);
 			wm.Disconnect();
 		}
 	}
