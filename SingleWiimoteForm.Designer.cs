@@ -43,7 +43,7 @@ namespace WiimoteTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(745, 528);
+            this.ClientSize = new System.Drawing.Size(1280, 1024);
             this.Controls.Add(this.wiimoteInfo1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
