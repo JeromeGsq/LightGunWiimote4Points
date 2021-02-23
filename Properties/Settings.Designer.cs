@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WiimoteTest.Properties {
+namespace LightGunWiimote4Points.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

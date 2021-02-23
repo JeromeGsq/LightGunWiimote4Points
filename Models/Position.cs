@@ -1,4 +1,4 @@
-﻿namespace WiimoteTest.Models
+﻿namespace LightGunWiimote4Points.Models
 {
     public class Position
     {

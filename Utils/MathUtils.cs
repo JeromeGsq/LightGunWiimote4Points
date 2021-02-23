@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using WiimoteLib;
-using WiimoteTest.Models;
+using LightGunWiimote4Points.Models;
 
-namespace WiimoteTest.Utils
+namespace LightGunWiimote4Points.Utils
 {
     public static class MathUtils
     {
