@@ -25,8 +25,6 @@ namespace WiimoteTest
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
-			wiimoteInfo1.Wiimote = wm;
-
 			wm.WiimoteChanged += wm_WiimoteChanged;
 			wm.WiimoteExtensionChanged += wm_WiimoteExtensionChanged;
 			wm.Connect();
