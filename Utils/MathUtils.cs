@@ -13,7 +13,7 @@ namespace LightGunWiimote4Points.Utils
             return Math.Sqrt(Math.Pow((p2.X - p1.X), 2) + Math.Pow((p2.Y - p1.Y), 2));
         }
 
-      public  static Position[] Sort(PointF[] rect)
+        public static Position[] Sort(PointF[] rect)
         {
             Position topLeft = new Position(0, 0);
             Position topRight = new Position(0, 0);
