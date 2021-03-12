@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lightgun_wiimote/modules/loading/notifier.dart';
+import 'dart:math' as math;
 
 class LoadingView extends StatelessWidget {
   const LoadingView({
@@ -62,10 +63,25 @@ class Body extends StatelessWidget {
               if (vm.offset.length >= 4) {
                 return Stack(
                   children: [
+                    // Points
                     Point(offset: vm.offset[0], color: Colors.red),
                     Point(offset: vm.offset[1], color: Colors.green),
                     Point(offset: vm.offset[2], color: Colors.blue),
                     Point(offset: vm.offset[3], color: Colors.cyan),
+
+                    // Lines
+                    Transform.translate(
+                      offset: Offset(0, 240),
+                      child: Divider(color: Colors.white),
+                    ),
+
+                    Transform.rotate(
+                      angle: math.pi / 2.0,
+                      child: Transform.translate(
+                        offset: Offset(240, 0),
+                        child: Divider(color: Colors.white),
+                      ),
+                    ),
                   ],
                 );
               } else {

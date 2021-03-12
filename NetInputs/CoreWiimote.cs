@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using vJoyInterfaceWrap;
 using WiimoteLib;
+using System.Net.Sockets;
 
 namespace LightGunWiimote4Points
 {
@@ -71,7 +72,7 @@ namespace LightGunWiimote4Points
             {
                 if (index == 1 && mouseTracking)
                 {
-                   //SetCursorPos((int)(resolution.X * percentX), (int)(resolution.Y * (1 - percentY)));
+                    SetCursorPos((int)(resolution.X * percentX), (int)(resolution.Y * (1 - percentY)));
                 }
             }
             else
@@ -98,16 +99,16 @@ namespace LightGunWiimote4Points
             joystick.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.Y)), index, HID_USAGES.HID_USAGE_RY);
 
             wm.SetRumble(ws.ButtonState.B);
-            /*
-            string value = "";
 
-            for (int i = 0; i <= 3; i++)
+            if (index == 1)
             {
-                value += corners[i].X + ":" + corners[i].Y + "\n";
+                string value = "";
+                for (int i = 0; i <= 3; i++)
+                {
+                    value += corners[i].X + ":" + corners[i].Y + "\n";
+                }
+                Program.SendMessage(value);
             }
-
-            File.WriteAllText("C:\\Users\\PC\\Desktop\\position.txt", value);
-            */
         }
 
         private void WiimoteExtensionChanged(object sender, WiimoteExtensionChangedEventArgs args)
