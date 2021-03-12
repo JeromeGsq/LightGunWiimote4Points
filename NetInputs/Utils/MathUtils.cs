@@ -13,48 +13,47 @@ namespace LightGunWiimote4Points.Utils
             return Math.Sqrt(Math.Pow((p2.X - p1.X), 2) + Math.Pow((p2.Y - p1.Y), 2));
         }
 
-        public static Position[] Sort(PointF[] rect)
+        public static Position[] Sort(IRSensor[] rect)
         {
-            Position topLeft = new Position(0, 0);
-            Position topRight = new Position(0, 0);
-            Position bottomLeft = new Position(0, 0);
-            Position bottomRight = new Position(0, 0);
+            Position top = new Position(0, 0);
+            Position bottom = new Position(0, 0);
+            Position left = new Position(0, 0);
+            Position right = new Position(0, 0);
 
-            var leftMost = new Point[2];
-            var rightMost = new Point[2];
-
-            // Insert 4 corners into array
             List<Position> points = new List<Position>();
-            for (int i = 0; i <= 3; i++)
+            for (int i = 0; i < rect.Length; i++)
             {
-                points.Add(new Position(rect[i].X, rect[i].Y));
+                if (rect[i].Found)
+                {
+                    points.Add(new Position(rect[i].Position.X, rect[i].Position.Y));
+                }
             }
 
-            points = points.OrderBy(w => w.X).ToList();
+            if (points.Count >= 3)
+            {
+                points = points.OrderBy(w => w.X).ToList();
+                left = points.First();
+                right = points.Last();
 
-            if (points[0].Y < points[1].Y)
-            {
-                topLeft = points[0];
-                bottomLeft = points[1];
-            }
-            else
-            {
-                topLeft = points[1];
-                bottomLeft = points[0];
+                points = points.OrderBy(w => w.Y).ToList();
+                top = points.First();
+                bottom = points.Last();
+
+                if (points.Count == 3)
+                {
+                    if (left.X == top.X || left.X == bottom.X)
+                    {
+                        left = new Position(top.X - (right.X - top.X), right.Y);
+                    }
+
+                    if (right.X == top.X || right.X == bottom.X)
+                    {
+                        right = new Position(top.X - (left.X - top.X), left.Y);
+                    }
+                }
             }
 
-            if (points[2].Y < points[3].Y)
-            {
-                topRight = points[2];
-                bottomRight = points[3];
-            }
-            else
-            {
-                topRight = points[3];
-                bottomRight = points[2];
-            }
-
-            return new Position[4] { topLeft, topRight, bottomRight, bottomLeft };
+            return new Position[4] { top, bottom, left, right };
         }
     }
 

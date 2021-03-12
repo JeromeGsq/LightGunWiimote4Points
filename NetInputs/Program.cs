@@ -14,7 +14,7 @@ namespace LightGunWiimote4Points
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            Position resolution = new Position(2560, 1440);
+            Position resolution = new Position(1920, 1080);
             WiimoteCollection mWC = new WiimoteCollection();
 
             try

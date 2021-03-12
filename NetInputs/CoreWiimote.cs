@@ -1,6 +1,7 @@
 ﻿using LightGunWiimote4Points.Models;
 using LightGunWiimote4Points.Utils;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using vJoyInterfaceWrap;
 using WiimoteLib;
@@ -17,6 +18,8 @@ namespace LightGunWiimote4Points
         private WiimoteState ws;
         private Position[] corners;
         private vJoy joystick;
+
+        private bool mouseTracking;
 
         double stickResolution = Math.Pow(2, 15);
         double percentX = 0;
@@ -54,25 +57,26 @@ namespace LightGunWiimote4Points
         {
             ws = args.WiimoteState;
 
-            corners = MathUtils.Sort(new PointF[4] {
-                ws.IRState.IRSensors[0].Position,
-                ws.IRState.IRSensors[1].Position,
-                ws.IRState.IRSensors[2].Position,
-                ws.IRState.IRSensors[3].Position
-            });
+            mouseTracking = !ws.ButtonState.Home;
 
-            if (ws.IRState.IRSensors[0].Found && ws.IRState.IRSensors[1].Found && ws.IRState.IRSensors[2].Found && ws.IRState.IRSensors[3].Found)
+            corners = MathUtils.Sort(ws.IRState.IRSensors);
+
+            percentX = (0.5 - corners[2].X) / (corners[3].X - corners[2].X);
+            percentY = (0.5 - corners[0].Y) / (corners[1].Y - corners[0].Y);
+
+            joystick.SetAxis((int)(stickResolution * percentX), index, HID_USAGES.HID_USAGE_X);
+            joystick.SetAxis((int)(stickResolution * (1 - percentY)), index, HID_USAGES.HID_USAGE_Y);
+
+            if (ws.IRState.IRSensors[0].Found)
             {
-                percentX = (0.5 - corners[0].X) / (corners[1].X - corners[0].X);
-                percentY = (0.5 - corners[0].Y) / (corners[3].Y - corners[0].Y);
-
-                joystick.SetAxis((int)(stickResolution * percentX), index, HID_USAGES.HID_USAGE_X);
-                joystick.SetAxis((int)(stickResolution * (1 - percentY)), index, HID_USAGES.HID_USAGE_Y);
-
-                if (index == 1)
+                if (index == 1 && mouseTracking)
                 {
-                    SetCursorPos((int)(resolution.X * percentX), (int)(resolution.Y * (1 - percentY)));
+                   //SetCursorPos((int)(resolution.X * percentX), (int)(resolution.Y * (1 - percentY)));
                 }
+            }
+            else
+            {
+                joystick.SetBtn(ws.NunchukState.Z, index, 12);
             }
 
             joystick.SetBtn(ws.ButtonState.A, index, 1);
@@ -92,6 +96,18 @@ namespace LightGunWiimote4Points
 
             joystick.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.X)), index, HID_USAGES.HID_USAGE_RX);
             joystick.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.Y)), index, HID_USAGES.HID_USAGE_RY);
+
+            wm.SetRumble(ws.ButtonState.B);
+            /*
+            string value = "";
+
+            for (int i = 0; i <= 3; i++)
+            {
+                value += corners[i].X + ":" + corners[i].Y + "\n";
+            }
+
+            File.WriteAllText("C:\\Users\\PC\\Desktop\\position.txt", value);
+            */
         }
 
         private void WiimoteExtensionChanged(object sender, WiimoteExtensionChangedEventArgs args)
