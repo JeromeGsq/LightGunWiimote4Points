@@ -20,7 +20,7 @@ namespace LightGunWiimote4Points
         private Position[] corners;
         private vJoy joystick;
 
-        private bool mouseTracking;
+        private bool mouseTracking = true;
 
         double stickResolution = Math.Pow(2, 15);
         double percentX = 0;
@@ -30,6 +30,14 @@ namespace LightGunWiimote4Points
         #region Events
         [DllImport("User32.Dll")]
         public static extern long SetCursorPos(int x, int y);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
+        //Mouse actions
+        private const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        private const int MOUSEEVENTF_LEFTUP = 0x04;
+        private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
+        private const int MOUSEEVENTF_RIGHTUP = 0x10;
         #endregion
 
         public CoreWiimote(Wiimote wm, int index, Position resolution)
@@ -54,11 +62,11 @@ namespace LightGunWiimote4Points
             wm.Connect();
         }
 
+        bool mouseDown = false;
+
         private void WiimoteChanged(object sender, WiimoteChangedEventArgs args)
         {
             ws = args.WiimoteState;
-
-            mouseTracking = !ws.ButtonState.Home;
 
             corners = MathUtils.Sort(ws.IRState.IRSensors);
 
@@ -68,16 +76,27 @@ namespace LightGunWiimote4Points
             joystick.SetAxis((int)(stickResolution * percentX), index, HID_USAGES.HID_USAGE_X);
             joystick.SetAxis((int)(stickResolution * (1 - percentY)), index, HID_USAGES.HID_USAGE_Y);
 
-            if (ws.IRState.IRSensors[0].Found)
+            if (mouseTracking)
             {
-                if (index == 1 && mouseTracking)
+                if (ws.IRState.IRSensors[0].Found)
                 {
-                    SetCursorPos((int)(resolution.X * percentX), (int)(resolution.Y * (1 - percentY)));
+                    if (index == 1 && mouseTracking)
+                    {
+                        SetCursorPos((int)(resolution.X * percentX), (int)(resolution.Y * (1 - percentY)));
+                    }
                 }
-            }
-            else
-            {
-                joystick.SetBtn(ws.NunchukState.Z, index, 12);
+
+                if (mouseDown && ws.ButtonState.B == false)
+                {
+                    mouse_event(MOUSEEVENTF_LEFTUP, (uint)(stickResolution * percentX), (uint)(stickResolution * (1 - percentY)), 0, 0);
+                    mouseDown = false;
+                }
+
+                if (mouseDown == false && ws.ButtonState.B)
+                {
+                    mouse_event(MOUSEEVENTF_LEFTDOWN, (uint)(stickResolution * percentX), (uint)(stickResolution * (1 - percentY)), 0, 0);
+                    mouseDown = true;
+                }
             }
 
             joystick.SetBtn(ws.ButtonState.A, index, 1);
