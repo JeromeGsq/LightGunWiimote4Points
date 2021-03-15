@@ -19,10 +19,14 @@ class LoadingNotifier extends BaseNotifier {
   late Socket socket;
 
   List<Offset> offset = [
-    Offset(100, 0),
     Offset(0, 0),
-    Offset(0, 100),
-    Offset(100, 100),
+    Offset(0, 0),
+    Offset(0, 0),
+    Offset(0, 0),
+    Offset(0, 0),
+    Offset(0, 0),
+    Offset(0, 0),
+    Offset(0, 0),
   ];
 
   @override
@@ -52,7 +56,7 @@ class LoadingNotifier extends BaseNotifier {
     print(data);
 
     try {
-      for (var i = 0; i <= data.length - 1; i++) {
+      for (var i = 0; i <= 6; i++) {
         final parts = data[i].split(":");
         offset[i] = Offset(
           -(0.5 - double.parse(parts[0].replaceAll(",", "."))) * 250,

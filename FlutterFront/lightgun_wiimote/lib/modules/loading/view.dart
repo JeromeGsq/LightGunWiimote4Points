@@ -64,10 +64,15 @@ class Body extends StatelessWidget {
                 return Stack(
                   children: [
                     // Points
-                    Point(offset: vm.offset[0], color: Colors.red),
-                    Point(offset: vm.offset[1], color: Colors.green),
-                    Point(offset: vm.offset[2], color: Colors.blue),
-                    Point(offset: vm.offset[3], color: Colors.cyan),
+                    Point(offset: vm.offset[0], color: Colors.white),
+                    Point(offset: vm.offset[1], color: Colors.white),
+
+                    Point(offset: vm.offset[2], color: Colors.grey),
+
+                    Point(offset: vm.offset[3], color: Colors.green),
+                    Point(offset: vm.offset[4], color: Colors.blue),
+                    Point(offset: vm.offset[5], color: Colors.cyan),
+                    Point(offset: vm.offset[6], color: Colors.red),
 
                     // Lines
                     Transform.translate(

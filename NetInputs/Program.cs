@@ -41,7 +41,7 @@ namespace LightGunWiimote4Points
 
                 while (true)
                 {
-                    Console.WriteLine("Waiting connection ... ");
+                    Console.WriteLine("Waoiting connection ... ");
                     clientSocket = listener.Accept();
                 }
             }
