@@ -50,16 +50,17 @@ namespace LightGunWiimote4Points
 
         public void Initialize()
         {
+            wm.Connect();
+
             wm.WiimoteChanged += WiimoteChanged;
             wm.WiimoteExtensionChanged += WiimoteExtensionChanged;
 
-            wm.SetReportType(InputReport.IRExtensionAccel, true);
+            wm.SetReportType(InputReport.IRExtensionAccel, IRSensitivity.WiiLevel5, true);
             wm.SetLEDs(index == 1, index == 2, index == 3, index == 4);
 
             joystick = new vJoy();
             joystick.AcquireVJD(index);
 
-            wm.Connect();
         }
 
         bool mouseDown = false;
@@ -67,14 +68,15 @@ namespace LightGunWiimote4Points
         private void WiimoteChanged(object sender, WiimoteChangedEventArgs args)
         {
             ws = args.WiimoteState;
+            mouseTracking = !ws.ButtonState.Home;
 
             corners = MathUtils.Sort(ws.IRState.IRSensors);
 
             percentX = (0.5 - corners[2].X) / (corners[3].X - corners[2].X);
             percentY = (0.5 - corners[0].Y) / (corners[1].Y - corners[0].Y);
 
-            joystick.SetAxis((int)(stickResolution * percentX), index, HID_USAGES.HID_USAGE_X);
-            joystick.SetAxis((int)(stickResolution * (1 - percentY)), index, HID_USAGES.HID_USAGE_Y);
+            joystick?.SetAxis((int)(stickResolution * percentX), index, HID_USAGES.HID_USAGE_X);
+            joystick?.SetAxis((int)(stickResolution * (1 - percentY)), index, HID_USAGES.HID_USAGE_Y);
 
             if (mouseTracking)
             {
@@ -99,23 +101,23 @@ namespace LightGunWiimote4Points
                 }
             }
 
-            joystick.SetBtn(ws.ButtonState.A, index, 1);
-            joystick.SetBtn(ws.ButtonState.B, index, 2);
-            joystick.SetBtn(ws.ButtonState.Up, index, 3);
-            joystick.SetBtn(ws.ButtonState.Down, index, 4);
-            joystick.SetBtn(ws.ButtonState.Left, index, 5);
-            joystick.SetBtn(ws.ButtonState.Right, index, 6);
-            joystick.SetBtn(ws.ButtonState.Plus, index, 7);
-            joystick.SetBtn(ws.ButtonState.Minus, index, 8);
-            joystick.SetBtn(ws.ButtonState.Home, index, 9);
-            joystick.SetBtn(ws.ButtonState.One, index, 10);
-            joystick.SetBtn(ws.ButtonState.Two, index, 11);
+            joystick?.SetBtn(ws.ButtonState.A, index, 1);
+            joystick?.SetBtn(ws.ButtonState.B, index, 2);
+            joystick?.SetBtn(ws.ButtonState.Up, index, 3);
+            joystick?.SetBtn(ws.ButtonState.Down, index, 4);
+            joystick?.SetBtn(ws.ButtonState.Left, index, 5);
+            joystick?.SetBtn(ws.ButtonState.Right, index, 6);
+            joystick?.SetBtn(ws.ButtonState.Plus, index, 7);
+            joystick?.SetBtn(ws.ButtonState.Minus, index, 8);
+            joystick?.SetBtn(ws.ButtonState.Home, index, 9);
+            joystick?.SetBtn(ws.ButtonState.One, index, 10);
+            joystick?.SetBtn(ws.ButtonState.Two, index, 11);
 
-            joystick.SetBtn(ws.NunchukState.Z, index, 12);
-            joystick.SetBtn(ws.NunchukState.C, index, 13);
+            joystick?.SetBtn(ws.NunchukState.Z, index, 12);
+            joystick?.SetBtn(ws.NunchukState.C, index, 13);
 
-            joystick.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.X)), index, HID_USAGES.HID_USAGE_RX);
-            joystick.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.Y)), index, HID_USAGES.HID_USAGE_RY);
+            joystick?.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.X)), index, HID_USAGES.HID_USAGE_RX);
+            joystick?.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.Y)), index, HID_USAGES.HID_USAGE_RY);
 
             wm.SetRumble(ws.ButtonState.B);
 
