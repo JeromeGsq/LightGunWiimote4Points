@@ -56,7 +56,7 @@ class LoadingNotifier extends BaseNotifier {
     print(data);
 
     try {
-      for (var i = 0; i <= 6; i++) {
+      for (var i = 0; i < data.length; i++) {
         final parts = data[i].split(":");
         offset[i] = Offset(
           -(0.5 - double.parse(parts[0].replaceAll(",", "."))) * 250,

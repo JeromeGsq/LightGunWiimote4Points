@@ -8,7 +8,20 @@ namespace LightGunWiimote4Points.Utils
 {
     public static class MathUtils
     {
-        public static double GetDistance(Position p1, Position p2)
+        public static float Lerp(float firstFloat, float secondFloat, float by)
+        {
+            return firstFloat * (1 - by) + secondFloat * by;
+        }
+
+        public static Position Center(Position p1, Position p2)
+        {
+            return new Position(
+                (p1.X + p2.X) / 2,
+                (p1.Y + p2.Y) / 2
+            );
+        }
+
+        public static double GetDistance(PointF p1, PointF p2)
         {
             return Math.Sqrt(Math.Pow((p2.X - p1.X), 2) + Math.Pow((p2.Y - p1.Y), 2));
         }
@@ -30,6 +43,7 @@ namespace LightGunWiimote4Points.Utils
                 top = points.First();
                 bottom = points.Last();
 
+
                 if (points.Count == 3)
                 {
                     if (left.X == top.X || left.X == bottom.X)
@@ -42,6 +56,7 @@ namespace LightGunWiimote4Points.Utils
                         right = new Position(top.X - (left.X - top.X), left.Y);
                     }
                 }
+
             }
 
             return new Position[4] { top, bottom, left, right };
