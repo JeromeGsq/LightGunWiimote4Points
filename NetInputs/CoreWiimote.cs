@@ -24,7 +24,7 @@ namespace LightGunWiimote4Points
         private Position[] corners;
         private vJoy joystick;
 
-        private bool mouseTracking = true;
+        private bool mouseTracking = false;
 
         double stickResolution = Math.Pow(2, 15);
         double percentX = 0;
@@ -37,7 +37,8 @@ namespace LightGunWiimote4Points
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
-        //Mouse actions
+
+        // Mouse actions
         private const int MOUSEEVENTF_LEFTDOWN = 0x02;
         private const int MOUSEEVENTF_LEFTUP = 0x04;
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
@@ -172,6 +173,9 @@ namespace LightGunWiimote4Points
                 percentX = (0.5 - computedEdges[2].X) / (computedEdges[3].X - computedEdges[2].X);
                 percentY = (0.5 - computedEdges[0].Y) / (computedEdges[1].Y - computedEdges[0].Y);
 
+                joystick.SetAxis((int)(stickResolution * percentX), index, HID_USAGES.HID_USAGE_X);
+                joystick.SetAxis((int)(stickResolution * (1 - percentY)), index, HID_USAGES.HID_USAGE_Y);
+
                 /*
                 var angle = Math.Atan2(ws.IRState.IRSensors[1].Position.Y - ws.IRState.IRSensors[0].Position.Y, ws.IRState.IRSensors[1].Position.X - ws.IRState.IRSensors[0].Position.X) * (180 / Math.PI);
 
@@ -190,34 +194,46 @@ namespace LightGunWiimote4Points
                 if (ws.IRState.IRSensors.Where(e => e.Found == true).Count() >= 2 && setupComplete)
                 {
                     rightClick = null;
-                    SetCursorPos((int)(resolution.X * percentX), (int)(resolution.Y * (1 - percentY)));
 
-                    if (mouseDown && ws.ButtonState.B == false)
+                    if (mouseTracking)
                     {
-                        mouse_event(MOUSEEVENTF_LEFTUP, (uint)(resolution.X * percentX), (uint)(resolution.Y * (1 - percentY)), 0, 0);
-                        mouseDown = false;
-                    }
-                    if (mouseDown == false && ws.ButtonState.B)
-                    {
-                        mouse_event(MOUSEEVENTF_LEFTDOWN, (uint)(resolution.X * percentX), (uint)(resolution.Y * (1 - percentY)), 0, 0);
-                        mouseDown = true;
-                    }
 
-                    if (mouseRightDown && ws.ButtonState.A == false)
-                    {
-                        mouse_event(MOUSEEVENTF_RIGHTUP, (uint)(resolution.X * percentX), (uint)(resolution.Y * (1 - percentY)), 0, 0);
-                        mouseRightDown = false;
-                    }
-                    if (mouseRightDown == false && ws.ButtonState.A)
-                    {
-                        mouse_event(MOUSEEVENTF_RIGHTDOWN, (uint)(resolution.X * percentX), (uint)(resolution.Y * (1 - percentY)), 0, 0);
-                        mouseRightDown = true;
+                        SetCursorPos((int)(resolution.X * percentX), (int)(resolution.Y * (1 - percentY)));
+
+                        if (mouseDown && ws.ButtonState.B == false)
+                        {
+                            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+                            mouseDown = false;
+                        }
+                        if (mouseDown == false && ws.ButtonState.B)
+                        {
+                            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+                            mouseDown = true;
+                        }
+
+                        if (mouseRightDown && ws.ButtonState.A == false)
+                        {
+                            mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+                            mouseRightDown = false;
+                        }
+                        if (mouseRightDown == false && ws.ButtonState.A)
+                        {
+                            mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+                            mouseRightDown = true;
+                        }
                     }
                 }
                 else if (rightClick == null)
                 {
                     rightClick = RightClick();
                 }
+
+                joystick.SetBtn(ws.ButtonState.B, index, 1);
+                joystick.SetBtn(ws.ButtonState.A, index, 3);
+                joystick.SetBtn(ws.ButtonState.Plus, index, 4);
+                joystick.SetBtn(ws.ButtonState.Minus, index, 5);
+                joystick.SetBtn(ws.ButtonState.One, index, 6);
+                joystick.SetBtn(ws.ButtonState.Two, index, 7);
 
                 SendMessageToFront(centerBar);
             }
@@ -230,16 +246,28 @@ namespace LightGunWiimote4Points
             wm.SetRumble(false);
         }
 
+
         public async Task RightClick()
         {
-            mouse_event(MOUSEEVENTF_RIGHTDOWN, (uint)(resolution.X * percentX), (uint)(resolution.Y * (1 - percentY)), 0, 0);
+            joystick.SetBtn(true, index, 2);
+            if (mouseTracking)
+            {
+                mouse_event(MOUSEEVENTF_RIGHTDOWN, (uint)(resolution.X * percentX), (uint)(resolution.Y * (1 - percentY)), 0, 0);
+            }
             mouseRightDown = true;
 
             wm.SetRumble(true);
             await Task.Delay(100);
             wm.SetRumble(false);
 
-            mouse_event(MOUSEEVENTF_RIGHTUP, (uint)(resolution.X * percentX), (uint)(resolution.Y * (1 - percentY)), 0, 0);
+            if (mouseTracking)
+            {
+                mouse_event(MOUSEEVENTF_RIGHTUP, (uint)(resolution.X * percentX), (uint)(resolution.Y * (1 - percentY)), 0, 0);
+            }
+
+            await Task.Delay(100);
+
+            joystick.SetBtn(false, index, 2);
             mouseRightDown = false;
         }
 
@@ -275,7 +303,7 @@ namespace LightGunWiimote4Points
 
         private void WiimoteExtensionChanged(object sender, WiimoteExtensionChangedEventArgs args)
         {
-            wm.SetReportType(args.Inserted ? InputReport.IRExtensionAccel : InputReport.IRAccel, true);
+           // wm.SetReportType(args.Inserted ? InputReport.IRExtensionAccel : InputReport.IRAccel, true);
         }
 
         public void Dispose()
