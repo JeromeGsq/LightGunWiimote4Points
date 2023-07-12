@@ -42,7 +42,29 @@ namespace LightGunWiimote4Points
             wm.SetReportType(InputReport.IRExtensionAccel, IRSensitivity.WiiLevel5, true);
             wm.SetLEDs(index == 1, index == 2, index == 3, index == 4);
 
+
             joystick = new vJoy();
+            VjdStat status = joystick.GetVJDStatus(index);
+
+            switch (status)
+            {
+                case VjdStat.VJD_STAT_OWN:
+                    Console.WriteLine("vJoy Device {0} is already owned by this feeder\n", index);
+                    break;
+                case VjdStat.VJD_STAT_FREE:
+                    Console.WriteLine("vJoy Device {0} is free\n", index);
+                    break;
+                case VjdStat.VJD_STAT_BUSY:
+                    Console.WriteLine("vJoy Device {0} is already owned by another feeder\nCannot continue\n", index);
+                    return;
+                case VjdStat.VJD_STAT_MISS:
+                    Console.WriteLine("vJoy Device {0} is not installed or disabled\nCannot continue\n", index);
+                    return;
+                default:
+                    Console.WriteLine("vJoy Device {0} general error\nCannot continue\n", index);
+                    return;
+            };
+
             joystick.AcquireVJD(index);
         }
 
@@ -71,6 +93,20 @@ namespace LightGunWiimote4Points
                 joystick.SetBtn(ws.ButtonState.Home, index, 9);
                 joystick.SetBtn(ws.ButtonState.One, index, 10);
                 joystick.SetBtn(ws.ButtonState.Two, index, 11);
+
+                joystick.SetBtn(ws.NunchukState.Z, index, 12);
+                joystick.SetBtn(ws.NunchukState.C, index, 13);
+
+                // joystick.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.X)), index, HID_USAGES.HID_USAGE_RX);
+                // joystick.SetAxis((int)(stickResolution * (0.5f + ws.NunchukState.Joystick.Y)), index, HID_USAGES.HID_USAGE_RY);
+
+                
+                joystick.SetBtn(0.5f + ws.NunchukState.Joystick.X > 0.75f, index, 14);
+                joystick.SetBtn(0.5f + ws.NunchukState.Joystick.X < 0.25f, index, 15);
+
+                joystick.SetBtn(0.5f + ws.NunchukState.Joystick.Y > 0.75f, index, 16);
+                joystick.SetBtn(0.5f + ws.NunchukState.Joystick.Y < 0.25f, index, 17);
+
             }
 
 

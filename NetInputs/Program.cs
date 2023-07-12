@@ -29,6 +29,7 @@ namespace LightGunWiimote4Points
             try
             {
                 mWC.FindAllWiimotes();
+                Console.WriteLine("Found " + mWC.Count + " wiimote(s)");
 
                 for (int i = 0; i < mWC.Count; i++)
                 {
