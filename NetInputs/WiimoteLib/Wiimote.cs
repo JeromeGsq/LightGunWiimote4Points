@@ -654,7 +654,7 @@ namespace WiimoteLib
 			switch(mWiimoteState.ExtensionType)
 			{
 
-				case ExtensionType.Nunchuk:
+		case ExtensionType.Nunchuk:
                 case ExtensionType.NewNunchuk:
                     mWiimoteState.NunchukState.RawJoystick.X = buff[offset];
 					mWiimoteState.NunchukState.RawJoystick.Y = buff[offset + 1];
